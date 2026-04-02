@@ -118,15 +118,22 @@ export default function HomeScreen() {
 
       {/* Search Bar */}
       <View style={styles.searchContainer}>
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Escribe una palabra ..."
-          placeholderTextColor="#888"
-          value={query}
-          onChangeText={setQuery}
-          onSubmitEditing={() => handleSearch()}
-          returnKeyType="search"
-        />
+        <View style={styles.inputWrapper}>
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Escribe una palabra ..."
+            placeholderTextColor="#888"
+            value={query}
+            onChangeText={setQuery}
+            onSubmitEditing={() => handleSearch()}
+            returnKeyType="search"
+          />
+          {query.length > 0 && (
+            <TouchableOpacity style={styles.clearButton} onPress={() => setQuery('')}>
+              <Ionicons name="close-circle" size={20} color="#bbb" />
+            </TouchableOpacity>
+          )}
+        </View>
         <TouchableOpacity style={styles.searchButton} onPress={() => handleSearch()}>
           <Ionicons name="search" size={24} color="#FFF" />
         </TouchableOpacity>
@@ -186,10 +193,16 @@ const styles = StyleSheet.create({
   headerBtn: { padding: 4, marginLeft: 8 },
   title: { fontSize: 26, fontWeight: '800', color: '#333' },
   searchContainer: { flexDirection: 'row', padding: 20, alignItems: 'center' },
-  searchInput: {
-    flex: 1, height: 50, backgroundColor: '#FFF', borderRadius: 25, paddingHorizontal: 20,
-    fontSize: 16, borderWidth: 1, borderColor: '#E0E0E0',
+  inputWrapper: {
+    flex: 1, flexDirection: 'row', alignItems: 'center', backgroundColor: '#FFF',
+    borderRadius: 25, borderWidth: 1, borderColor: '#E0E0E0',
     shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 4, elevation: 2
+  },
+  searchInput: {
+    flex: 1, height: 50, paddingHorizontal: 20, fontSize: 16
+  },
+  clearButton: {
+    padding: 10, marginRight: 5
   },
   searchButton: {
     marginLeft: 10, width: 50, height: 50, borderRadius: 25, backgroundColor: '#FF6B6B',
