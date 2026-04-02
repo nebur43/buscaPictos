@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import * as Localization from 'expo-localization';
 import { Link, useLocalSearchParams } from 'expo-router';
 import * as Speech from 'expo-speech';
 import React, { useEffect, useState } from 'react';
@@ -8,8 +9,10 @@ import { saveHistory } from '../services/history';
 
 export default function HomeScreen() {
   const [query, setQuery] = useState('');
-  const [results, setResults] = useState([]);
+  const [results, setResults] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [isPlayMode, setIsPlayMode] = useState(true);
+  const [esVoiceId, setEsVoiceId] = useState<string | undefined>();
   const { width } = useWindowDimensions();
   const { searchStr } = useLocalSearchParams();
 
@@ -19,10 +22,38 @@ export default function HomeScreen() {
 
   useEffect(() => {
     if (searchStr) {
-      setQuery(searchStr);
-      handleSearch(searchStr);
+      setQuery(searchStr as string);
+      handleSearch(searchStr as string);
     }
   }, [searchStr]);
+
+  const speakText = async (text: string) => {
+    let resolvedVoiceId = esVoiceId;
+    
+    // Resolve dynamic voice explicitly if state hasn't captured it yet
+    if (!resolvedVoiceId) {
+      try {
+        const locales = Localization.getLocales();
+        const sysLocale = locales && locales.length > 0 ? locales[0].languageTag : 'es-ES';
+        
+        const voices = await Speech.getAvailableVoicesAsync();
+        let voice = voices.find(v => v.language.replace('_', '-') === sysLocale);
+        
+        if (!voice) {
+          voice = voices.find(v => v.language.startsWith('es'));
+        }
+
+        if (voice) {
+          resolvedVoiceId = voice.identifier;
+          setEsVoiceId(resolvedVoiceId);
+        }
+      } catch (e) {
+        console.log("Voice fetch error:", e);
+      }
+    }
+    
+    Speech.speak(text, resolvedVoiceId ? { voice: resolvedVoiceId } : { language: 'es-ES' });
+  };
 
   const handleSearch = async (searchQuery) => {
     const q = searchQuery || query;
@@ -31,7 +62,7 @@ export default function HomeScreen() {
     Keyboard.dismiss();
     
     // Pronunciar la palabra buscada
-    Speech.speak(q, { language: 'es-ES' });
+    speakText(q);
 
     setLoading(true);
     try {
@@ -47,16 +78,36 @@ export default function HomeScreen() {
     }
   };
 
+  const handlePictoPress = (pictoWord: string) => {
+    if (!pictoWord) return;
+    
+    if (isPlayMode) {
+      if (pictoWord.trim().localeCompare(query.trim(), 'es', { sensitivity: 'base' }) !== 0) {
+        setQuery(pictoWord);
+        handleSearch(pictoWord);
+      } else {
+        speakText(pictoWord);
+      }
+    } else {
+      speakText(pictoWord);
+    }
+  };
+
   return (
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.title}>BuscaPictos</Text>
-        <Link href="/history_modal" asChild>
-          <TouchableOpacity style={styles.historyBtn}>
-            <Ionicons name="time" size={28} color="#FF6B6B" />
+        <View style={styles.headerButtons}>
+          <TouchableOpacity style={styles.headerBtn} onPress={() => setIsPlayMode(!isPlayMode)}>
+            <Ionicons name={isPlayMode ? "play-circle" : "pause-circle"} size={32} color="#FF6B6B" />
           </TouchableOpacity>
-        </Link>
+          <Link href="/history_modal" asChild>
+            <TouchableOpacity style={styles.headerBtn}>
+              <Ionicons name="time" size={28} color="#FF6B6B" />
+            </TouchableOpacity>
+          </Link>
+        </View>
       </View>
 
       {/* Search Bar */}
@@ -93,16 +144,23 @@ export default function HomeScreen() {
           keyExtractor={(item) => item.id.toString()}
           numColumns={numColumns}
           contentContainerStyle={styles.gridContainer}
-          renderItem={({ item }) => (
-            <View style={[styles.gridItem, { width: (width - 32) / numColumns - 10 }]}>
-              <View style={styles.imageContainer}>
-                <Image source={{ uri: item.imageUrl }} style={styles.image} resizeMode="contain" />
-              </View>
-              {item.keywords.slice(0, 1).map((kw, idx) => (
-                <Text key={idx} style={styles.keyword} numberOfLines={2}>{kw}</Text>
-              ))}
-            </View>
-          )}
+          renderItem={({ item }) => {
+            const word = item.keywords.length > 0 ? item.keywords[0] : '';
+            return (
+              <TouchableOpacity 
+                style={[styles.gridItem, { width: (width - 32) / numColumns - 10 }]}
+                onPress={() => handlePictoPress(word)}
+                activeOpacity={0.7}
+              >
+                <View style={styles.imageContainer}>
+                  <Image source={{ uri: item.imageUrl }} style={styles.image} resizeMode="contain" />
+                </View>
+                {item.keywords.slice(0, 1).map((kw, idx) => (
+                  <Text key={idx} style={styles.keyword} numberOfLines={2}>{kw}</Text>
+                ))}
+              </TouchableOpacity>
+            );
+          }}
         />
       )}
     </View>
@@ -118,8 +176,9 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1, borderBottomColor: '#E0E0E0',
     shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 3, elevation: 3
   },
+  headerButtons: { flexDirection: 'row', alignItems: 'center' },
+  headerBtn: { padding: 4, marginLeft: 8 },
   title: { fontSize: 26, fontWeight: '800', color: '#333' },
-  historyBtn: { padding: 8 },
   searchContainer: { flexDirection: 'row', padding: 20, alignItems: 'center' },
   searchInput: {
     flex: 1, height: 50, backgroundColor: '#FFF', borderRadius: 25, paddingHorizontal: 20,
