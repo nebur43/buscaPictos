@@ -17,8 +17,8 @@ export default function HomeScreen() {
   const { searchStr } = useLocalSearchParams();
 
   // Determine num of columns based on width
-  // Minimum 3
-  const numColumns = Math.max(3, Math.floor(width / 120));
+  // Minimum 2
+  const numColumns = Math.max(2, Math.floor(width / 150));
 
   useEffect(() => {
     if (searchStr) {
