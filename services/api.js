@@ -12,7 +12,7 @@ export const searchPictograms = async (query) => {
       imageUrl: `https://static.arasaac.org/pictograms/${item._id}/${item._id}_300.png`,
       keywords: item.keywords.map(k => k.keyword),
       score: item.score || 0
-    })).sort((a, b) => b.score - a.score); // Optional: sort by score if available
+    }));
   } catch (error) {
     console.error("Error searching pictograms:", error);
     throw error;
