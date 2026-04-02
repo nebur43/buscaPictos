@@ -78,8 +78,12 @@ export default function HomeScreen() {
     }
   };
 
-  const handlePictoPress = (pictoWord: string) => {
+  const handlePictoPress = async (pictoWord: string) => {
     if (!pictoWord) return;
+    
+    // Si ya se está leyendo algo en voz alta, no hacer nada
+    const isSpeaking = await Speech.isSpeakingAsync();
+    if (isSpeaking) return;
     
     if (isPlayMode) {
       if (pictoWord.trim().localeCompare(query.trim(), 'es', { sensitivity: 'base' }) !== 0) {
