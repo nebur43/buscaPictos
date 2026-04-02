@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import * as Localization from 'expo-localization';
-import { Link, useLocalSearchParams } from 'expo-router';
+import { Link, useLocalSearchParams, useRouter } from 'expo-router';
 import * as Speech from 'expo-speech';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, FlatList, Image, Keyboard, StyleSheet, Text, TextInput, TouchableOpacity, useWindowDimensions, View } from 'react-native';
@@ -17,6 +17,7 @@ export default function HomeScreen() {
   const { width } = useWindowDimensions();
   const insets = useSafeAreaInsets();
   const { searchStr } = useLocalSearchParams();
+  const router = useRouter();
 
   // Determine num of columns based on width
   // Minimum 2
@@ -25,7 +26,10 @@ export default function HomeScreen() {
   useEffect(() => {
     if (searchStr) {
       setQuery(searchStr as string);
-      handleSearch(searchStr as string);
+      executeSearch(searchStr as string);
+    } else {
+      setQuery('');
+      setResults([]);
     }
   }, [searchStr]);
 
@@ -57,13 +61,16 @@ export default function HomeScreen() {
     Speech.speak(text, resolvedVoiceId ? { voice: resolvedVoiceId } : { language: 'es-ES' });
   };
 
-  const handleSearch = async (searchQuery) => {
+  const handleSearch = (searchQuery?: string) => {
     const q = searchQuery || query;
     if (!q.trim()) return;
 
     Keyboard.dismiss();
-    
-    // Pronunciar la palabra buscada
+    // Añadir al stack de navegación nativo usando push:
+    router.push({ pathname: '/', params: { searchStr: q } });
+  };
+
+  const executeSearch = async (q: string) => {
     speakText(q);
 
     setLoading(true);
