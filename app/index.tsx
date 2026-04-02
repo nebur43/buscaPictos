@@ -4,6 +4,7 @@ import { Link, useLocalSearchParams } from 'expo-router';
 import * as Speech from 'expo-speech';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, FlatList, Image, Keyboard, StyleSheet, Text, TextInput, TouchableOpacity, useWindowDimensions, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { searchPictograms } from '../services/api';
 import { saveHistory } from '../services/history';
 
@@ -14,6 +15,7 @@ export default function HomeScreen() {
   const [isPlayMode, setIsPlayMode] = useState(true);
   const [esVoiceId, setEsVoiceId] = useState<string | undefined>();
   const { width } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
   const { searchStr } = useLocalSearchParams();
 
   // Determine num of columns based on width
@@ -100,7 +102,7 @@ export default function HomeScreen() {
   return (
     <View style={styles.container}>
       {/* Header */}
-      <View style={styles.header}>
+      <View style={[styles.header, { paddingTop: Math.max(15, insets.top + 5) }]}>
         <Text style={styles.title}>BuscaPictos</Text>
         <View style={styles.headerButtons}>
           <TouchableOpacity style={styles.headerBtn} onPress={() => setIsPlayMode(!isPlayMode)}>
@@ -174,7 +176,7 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#F8F9FA' },
   header: {
-    paddingTop: 60, paddingHorizontal: 20, paddingBottom: 10,
+    paddingHorizontal: 20, paddingBottom: 10,
     flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
     backgroundColor: '#FFFFFF',
     borderBottomWidth: 1, borderBottomColor: '#E0E0E0',
