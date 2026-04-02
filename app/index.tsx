@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, StyleSheet, FlatList, Image, TouchableOpacity, useWindowDimensions, ActivityIndicator, Keyboard } from 'react-native';
-import { Link, useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { Link, useLocalSearchParams } from 'expo-router';
+import * as Speech from 'expo-speech';
+import React, { useEffect, useState } from 'react';
+import { ActivityIndicator, FlatList, Image, Keyboard, StyleSheet, Text, TextInput, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import { searchPictograms } from '../services/api';
 import { saveHistory } from '../services/history';
 
@@ -26,13 +27,19 @@ export default function HomeScreen() {
   const handleSearch = async (searchQuery) => {
     const q = searchQuery || query;
     if (!q.trim()) return;
-    
+
     Keyboard.dismiss();
+    
+    // Pronunciar la palabra buscada
+    Speech.speak(q, { language: 'es-ES' });
+
     setLoading(true);
     try {
       const data = await searchPictograms(q);
       setResults(data);
-      await saveHistory(q);
+      if (data && data.length > 0) {
+        await saveHistory(q);
+      }
     } catch (error) {
       console.error(error);
     } finally {
@@ -56,7 +63,7 @@ export default function HomeScreen() {
       <View style={styles.searchContainer}>
         <TextInput
           style={styles.searchInput}
-          placeholder="Escribe una palabra (ej. perrito caliente)..."
+          placeholder="Escribe una palabra ..."
           placeholderTextColor="#888"
           value={query}
           onChangeText={setQuery}
