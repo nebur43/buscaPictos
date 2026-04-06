@@ -7,12 +7,14 @@ export const searchPictograms = async (query) => {
       throw new Error(`API error: ${response.status}`);
     }
     const data = await response.json();
-    return data.map(item => ({
-      id: item._id,
-      imageUrl: `https://static.arasaac.org/pictograms/${item._id}/${item._id}_300.png`,
-      keywords: item.keywords.map(k => k.keyword),
-      score: item.score || 0
-    }));
+    return data
+      .filter(item => !item.violence && !item.sex)
+      .map(item => ({
+        id: item._id,
+        imageUrl: `https://static.arasaac.org/pictograms/${item._id}/${item._id}_300.png`,
+        keywords: item.keywords.map(k => k.keyword),
+        score: item.score || 0
+      }));
   } catch (error) {
     console.error("Error searching pictograms:", error);
     throw error;
