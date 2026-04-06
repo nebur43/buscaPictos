@@ -2,7 +2,7 @@
   "expo": {
     "name": "BuscaPictos",
     "slug": "buscaPictos2",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "default",
     "icon": "./assets/images/icon.png",
     "scheme": "buscapictos2",
@@ -19,7 +19,8 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
-      "package": "com.nebur.buscapictos"
+      "package": "com.nebur.buscapictos",
+      "versionCode": 2
     },
     "web": {
       "output": "static",
