@@ -18,8 +18,8 @@ export default function HistoryModal() {
     fetchHistory();
   }, []);
 
-  const handleSelect = (query) => {
-    // Navigate back to index with params to auto-search
+  const handleSelect = (item: any) => {
+    const query = typeof item === 'string' ? item : item.word;
     router.navigate({ pathname: '/', params: { searchStr: query } });
   };
 
@@ -35,15 +35,21 @@ export default function HistoryModal() {
       ) : (
         <FlatList
           data={history}
-          keyExtractor={(item, idx) => `${item}-${idx}`}
+          keyExtractor={(item, idx) => {
+            const word = typeof item === 'string' ? item : item.word;
+            return `${word}-${idx}`;
+          }}
           contentContainerStyle={{ padding: 20 }}
-          renderItem={({ item }) => (
-            <TouchableOpacity style={styles.historyItem} onPress={() => handleSelect(item)}>
-              <Ionicons name="search" size={20} color="#888" />
-              <Text style={styles.historyText}>{item}</Text>
-              <Ionicons name="chevron-forward" size={20} color="#CCC" />
-            </TouchableOpacity>
-          )}
+          renderItem={({ item }) => {
+            const word = typeof item === 'string' ? item : item.word;
+            return (
+              <TouchableOpacity style={styles.historyItem} onPress={() => handleSelect(item)}>
+                <Ionicons name="search" size={20} color="#888" />
+                <Text style={styles.historyText}>{word}</Text>
+                <Ionicons name="chevron-forward" size={20} color="#CCC" />
+              </TouchableOpacity>
+            );
+          }}
         />
       )}
     </View>
