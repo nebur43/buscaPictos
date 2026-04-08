@@ -206,7 +206,7 @@ const styles = StyleSheet.create({
     shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 4, elevation: 2
   },
   searchInput: {
-    flex: 1, height: 50, paddingHorizontal: 20, fontSize: 16
+    flex: 1, height: 50, paddingHorizontal: 20, fontSize: 16, color: '#333'
   },
   clearButton: {
     padding: 10, marginRight: 5

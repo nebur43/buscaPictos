@@ -2,7 +2,7 @@
   "expo": {
     "name": "BuscaPictos",
     "slug": "buscaPictos2",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "orientation": "default",
     "icon": "./assets/images/icon.png",
     "scheme": "buscapictos2",
@@ -20,7 +20,7 @@
       },
       "predictiveBackGestureEnabled": false,
       "package": "com.nebur.buscapictos",
-      "versionCode": 2
+      "versionCode": 3
     },
     "web": {
       "output": "static",
