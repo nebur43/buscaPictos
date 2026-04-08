@@ -6,7 +6,8 @@ import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, FlatList, Image, Keyboard, StyleSheet, Text, TextInput, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { searchPictograms } from '../services/api';
-import { saveHistory } from '../services/history';
+import { getHistory, saveHistory } from '../services/history';
+import { DEFAULT_LIST } from '../constants/default_list';
 
 export default function HomeScreen() {
   const [query, setQuery] = useState('');
@@ -29,9 +30,59 @@ export default function HomeScreen() {
       executeSearch(searchStr as string);
     } else {
       setQuery('');
-      setResults([]);
+      loadRandomHistory();
     }
   }, [searchStr]);
+
+  const loadRandomHistory = async () => {
+    setLoading(true);
+    try {
+      const history = await getHistory();
+      
+      // Filter to only include items with IDs (new format)
+      const historyItems = (history || []).filter((item: any) => typeof item === 'object' && item.id);
+      
+      // Combine with DEFAULT_LIST
+      // Use a Map to avoid duplicates by word
+      const combinedMap = new Map();
+      
+      // First add defaults
+      DEFAULT_LIST.forEach((item: any) => {
+        combinedMap.set(item.word.toLowerCase(), item);
+      });
+      
+      // Then add history (overwriting or keeping defaults depends on preference, 
+      // here history will overwrite defaults if same word exists)
+      historyItems.forEach((item: any) => {
+        combinedMap.set(item.word.toLowerCase(), item);
+      });
+
+      const allItems = Array.from(combinedMap.values());
+
+      if (allItems.length === 0) {
+        setResults([]);
+        return;
+      }
+
+      // Shuffle and take up to 20
+      const shuffled = [...allItems].sort(() => 0.5 - Math.random());
+      const selected = shuffled.slice(0, 20);
+
+      // Map to results format
+      const formatted = selected.map((item: any) => ({
+        id: item.id,
+        imageUrl: `https://static.arasaac.org/pictograms/${item.id}/${item.id}_300.png`,
+        keywords: [item.word],
+        score: 0
+      }));
+
+      setResults(formatted);
+    } catch (error) {
+      console.error("Error loading random history:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const speakText = async (text: string) => {
     let resolvedVoiceId = esVoiceId;
@@ -78,7 +129,8 @@ export default function HomeScreen() {
       const data = await searchPictograms(q);
       setResults(data);
       if (data && data.length > 0) {
-        await saveHistory(q);
+        // Guardamos el primer _id del resultado
+        await saveHistory(q, data[0].id);
       }
     } catch (error) {
       console.error(error);
@@ -175,7 +227,7 @@ export default function HomeScreen() {
                 <View style={styles.imageContainer}>
                   <Image source={{ uri: item.imageUrl }} style={styles.image} resizeMode="contain" />
                 </View>
-                {item.keywords.slice(0, 1).map((kw, idx) => (
+                {item.keywords.slice(0, 1).map((kw: string, idx: number) => (
                   <Text key={idx} style={styles.keyword} numberOfLines={2}>{kw}</Text>
                 ))}
               </TouchableOpacity>

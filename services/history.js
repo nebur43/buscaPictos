@@ -3,18 +3,22 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const HISTORY_KEY = '@buscaPictos_search_history';
 const MAX_HISTORY_ITEMS = 100;
 
-export const saveHistory = async (query) => {
-  if (!query || query.trim() === '') return;
+export const saveHistory = async (query, pictoId) => {
+  if (!query || query.trim() === '' || !pictoId) return;
   try {
     const normalizedQuery = query.trim().toLowerCase();
     const existingHistoryStr = await AsyncStorage.getItem(HISTORY_KEY);
     let history = existingHistoryStr ? JSON.parse(existingHistoryStr) : [];
     
-    // Remove if already exists so we can bring it to the front
-    history = history.filter(item => item !== normalizedQuery);
+    // Support old history format (strings) vs new format (objects)
+    // Filter out if already exists (checking both formats)
+    history = history.filter(item => {
+      const itemWord = typeof item === 'string' ? item : item.word;
+      return itemWord !== normalizedQuery;
+    });
     
-    // Add to the front
-    history.unshift(normalizedQuery);
+    // Add to the front in new format
+    history.unshift({ word: normalizedQuery, id: pictoId });
     
     // Cap at max items
     if (history.length > MAX_HISTORY_ITEMS) {
