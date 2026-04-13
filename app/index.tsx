@@ -3,7 +3,7 @@ import * as Localization from 'expo-localization';
 import { Link, useLocalSearchParams, useRouter } from 'expo-router';
 import * as Speech from 'expo-speech';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, FlatList, Image, Keyboard, StyleSheet, Text, TextInput, TouchableOpacity, useWindowDimensions, View } from 'react-native';
+import { ActivityIndicator, Alert, FlatList, Image, Keyboard, Linking, StyleSheet, Text, TextInput, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { searchPictograms } from '../services/api';
 import { getHistory, saveHistory } from '../services/history';
@@ -158,12 +158,28 @@ export default function HomeScreen() {
     }
   };
 
+  const showLegalInfo = () => {
+    Alert.alert(
+      "Información Legal y Licencia",
+      "Esta aplicación es una herramienta independiente y gratuita.\n\n" +
+      "Al utilizar recursos de ARASAAC, esta aplicación se distribuye íntegramente bajo la licencia Creative Commons BY-NC-SA.\n\n" +
+      "Los pictogramas son propiedad del Gobierno de Aragón, creados por Sergio Palao para ARASAAC. Fuente oficial: arasaac.org",
+      [
+        { text: "Cerrar", style: "cancel" },
+        { text: "Visitar ARASAAC", onPress: () => Linking.openURL('https://arasaac.org') }
+      ]
+    );
+  };
+
   return (
     <View style={styles.container}>
       {/* Header */}
       <View style={[styles.header, { paddingTop: Math.max(15, insets.top + 5) }]}>
         <Text style={styles.title}>BuscaPictos</Text>
         <View style={styles.headerButtons}>
+          <TouchableOpacity style={styles.headerBtn} onPress={showLegalInfo}>
+            <Ionicons name="information-circle-outline" size={28} color="#FF6B6B" />
+          </TouchableOpacity>
           <TouchableOpacity style={styles.headerBtn} onPress={() => setIsPlayMode(!isPlayMode)}>
             <Ionicons name={isPlayMode ? "play-circle" : "pause-circle"} size={32} color="#FF6B6B" />
           </TouchableOpacity>
