@@ -163,11 +163,18 @@ export default function HomeScreen() {
       "Sobre BuscaPictos",
       "❤ Dedicado con todo mi cariño a mi hija Alejandra.\n\n" +
       "Esta aplicación es una herramienta independiente y gratuita.\n\n" +
-      "Al utilizar recursos de ARASAAC, esta aplicación se distribuye íntegramente bajo la licencia Creative Commons BY-NC-SA.\n\n" +
-      "Los pictogramas son propiedad del Gobierno de Aragón, creados por Sergio Palao para ARASAAC. Fuente oficial: arasaac.org",
+      "Al utilizar recursos de ARASAAC, esta aplicación se distribuye íntegramente bajo la licencia Creative Commons BY-NC-SA. Los pictogramas son propiedad del Gobierno de Aragón, creados por Sergio Palao para ARASAAC (arasaac.org).\n\n" +
+      "Código fuente disponible en GitHub: github.com/nebur43/buscaPictos\n\n" +
+      "Para comentarios y valoraciones, visita la página de la app en Google Play.",
       [
         { text: "Cerrar", style: "cancel" },
-        { text: "Visitar ARASAAC", onPress: () => Linking.openURL('https://arasaac.org') }
+        { text: "GitHub", onPress: () => Linking.openURL('https://github.com/nebur43/buscaPictos') },
+        {
+          text: "Valorar en Play", onPress: () =>
+            Linking.openURL('market://details?id=com.nebur.buscapictos').catch(() =>
+              Linking.openURL('https://play.google.com/store/apps/details?id=com.nebur.buscapictos')
+            )
+        }
       ]
     );
   };
@@ -200,7 +207,12 @@ export default function HomeScreen() {
             placeholder="Escribe una palabra ..."
             placeholderTextColor="#888"
             value={query}
-            onChangeText={setQuery}
+            onChangeText={(text) => {
+              if (text.length === query.length + 1) {
+                speakText(text[text.length - 1]);
+              }
+              setQuery(text);
+            }}
             onSubmitEditing={() => handleSearch()}
             returnKeyType="search"
           />
