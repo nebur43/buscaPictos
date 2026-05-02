@@ -160,7 +160,8 @@ export default function HomeScreen() {
 
   const showLegalInfo = () => {
     Alert.alert(
-      "Información Legal y Licencia",
+      "Sobre BuscaPictos",
+      "❤ Dedicado con todo mi cariño a mi hija Alejandra.\n\n" +
       "Esta aplicación es una herramienta independiente y gratuita.\n\n" +
       "Al utilizar recursos de ARASAAC, esta aplicación se distribuye íntegramente bajo la licencia Creative Commons BY-NC-SA.\n\n" +
       "Los pictogramas son propiedad del Gobierno de Aragón, creados por Sergio Palao para ARASAAC. Fuente oficial: arasaac.org",
